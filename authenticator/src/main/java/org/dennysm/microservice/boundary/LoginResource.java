@@ -22,16 +22,24 @@ public class LoginResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response login(JsonObject js) {
-		final String username = js.getString("username");
-		final String password = js.getString("password");
-		final long timestamp = Long.parseLong(js.getString("timestamp"));
-		final String signature = js.getString("signature");
+		try {
+			final String username = js.getString("username");
+			final String password = js.getString("password");
+			final long timestamp = Long.parseLong(js.getString("timestamp"));
+			final String signature = js.getString("signature");
+			
+			LoginResponse result = ls.doLogin(username, password, timestamp, signature);
+			Status status = ( result.getStatusCode().equals("000")?Response.Status.OK:Response.Status.UNAUTHORIZED);
+			return Response
+					.status(status)
+					.entity(result)
+					.build();
+		} catch (Exception e) {
+			return Response
+					.status(Response.Status.BAD_REQUEST)
+					.entity(new LoginResponse("999", "Invalid Request"))
+					.build();
+		}
 		
-		LoginResponse result = ls.doLogin(username, password, timestamp, signature);
-		Status status = ( result.getStatusCode().equals("000")?Response.Status.OK:Response.Status.UNAUTHORIZED);
-		return Response
-				.status(status)
-				.entity(result)
-				.build();
 	}
 }

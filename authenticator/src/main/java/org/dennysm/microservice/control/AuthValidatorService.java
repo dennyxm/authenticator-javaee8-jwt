@@ -1,7 +1,7 @@
 package org.dennysm.microservice.control;
 
-import javax.ejb.Stateless; 
-import javax.ws.rs.NotFoundException;
+import javax.ejb.Stateless;
+import javax.persistence.NoResultException; 
 
 import org.dennysm.microservice.boundary.AuthValidatorResponse; 
 import org.dennysm.microservice.crypto.EncryptorAesGcmPassword;
@@ -23,9 +23,7 @@ public class AuthValidatorService extends AbstractControlService {
 		try {
 			String decryptedUserID = EncryptorAesGcmPassword.decrypt(encryptedUserID, encryptionKey);
 			final long userID = Long.parseLong(decryptedUserID);
-			user = (UserData)em.createQuery("SELECT u FROM UserData u WHERE u.userID=:userid")
-					 .setParameter("userid", userID)
-					 .getSingleResult(); 
+			user = userStore.getUserDataByUserID(userID); 
 			
 			if(user.getStatus()!=1) {
 				AuthValidatorResponse failed = new AuthValidatorResponse();
@@ -52,7 +50,7 @@ public class AuthValidatorService extends AbstractControlService {
 				return failed;
 			}
 			
-		} catch (NotFoundException e) {
+		} catch (NoResultException e) {
 			AuthValidatorResponse failed = new AuthValidatorResponse();
 			failed.setStatusCode("105");
 			failed.setStatusMessage("Invalid User Credential");
@@ -62,6 +60,6 @@ public class AuthValidatorService extends AbstractControlService {
 		}
 		
 		
-		return new AuthValidatorResponse();
+		return new AuthValidatorResponse("999","General Error");
 	}
 }

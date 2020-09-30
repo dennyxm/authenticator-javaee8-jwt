@@ -8,6 +8,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 public abstract class AbstractControlService {
 	protected static final String salt="3atSh!t";
+	
+	@Inject
+	UserStore userStore;
 	 
     @Inject
     TokenService ts;

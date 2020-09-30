@@ -7,6 +7,11 @@ public class AuthValidatorResponse extends AbstractResponse {
 	public AuthValidatorResponse() {
 		// TODO Auto-generated constructor stub
 	}
+	
+	public AuthValidatorResponse(String statusCode, String statusMessage) {
+		this.setStatusCode(statusCode);
+		this.setStatusMessage(statusMessage);
+	}
 
 	public String getToken() {
 		return token;

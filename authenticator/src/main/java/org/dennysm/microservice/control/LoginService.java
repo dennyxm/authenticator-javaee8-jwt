@@ -26,7 +26,7 @@ public class LoginService extends AbstractControlService {
 		/*
 		 * 1. validasi signature
 		 * 2. ambil berdasar username, jika ada, validasi passwordnya
-		 */
+		 */ 
 		MessageDigest digest;
 		try {
 			final String signatureBuild = username+password+Long.toString(timestamp)+salt;
@@ -46,12 +46,10 @@ public class LoginService extends AbstractControlService {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		UserData user;
 		try {
-			user = (UserData)em.createQuery("SELECT u FROM UserData u WHERE u.userName=:username")
-					 .setParameter("username", username)
-					 .getSingleResult(); 
+			user = userStore.getUserDataByUsername(username); 
 			
 			if(user.getStatus()!=1) {
 				LoginResponse failed = new LoginResponse();
@@ -77,6 +75,7 @@ public class LoginService extends AbstractControlService {
 					success.setStatusMessage("Success");
 					// enkrip aes user id nya
 					logger.info("ENCRYPTION KEY "+encryptionKey);
+					//System.out.println("ngentoot "+Long.toString(user.getUserID())+" "+encryptionKey);
 					final String encryptedUserID = EncryptorAesGcmPassword.encrypt(Long.toString(user.getUserID()).getBytes(), encryptionKey) ;
 					success.setUserID(encryptedUserID);
 					
@@ -102,9 +101,11 @@ public class LoginService extends AbstractControlService {
 			failed.setStatusCode("104");
 			failed.setStatusMessage("Invalid Username or Password");
 			return failed;
-		} 
+		} catch (Exception e) { 
+			e.printStackTrace();
+		}
 		
-		return new LoginResponse();
+		return new LoginResponse("999","General Error");
 	}
 	
 	

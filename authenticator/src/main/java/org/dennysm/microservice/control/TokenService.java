@@ -15,8 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.algorithms.Algorithm; 
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 @Singleton
@@ -51,8 +50,8 @@ public class TokenService {
 		        .withIssuer(TokenService.class.getName())
 		        .withExpiresAt(expiresAt)
 		        .sign(algorithm);
-		} catch (JWTCreationException exception){
-		    //Invalid Signing configuration / Couldn't convert Claims.
+		} catch (Exception e){ 
+		    logger.debug(e.getMessage()); 
 		}
 		return token;
 	}
@@ -75,25 +74,24 @@ public class TokenService {
 			
 			String claimUserID = jwt.getClaim("userID").asString();
 			if(!encryptedUserID.equals(claimUserID)) {
-				logger.warn("incoming userid not equal with userid in token");
+				logger.warn("incoming userid not equal with userid in token"); 
 				return false;
 			}
 			
 			String claimFullname = jwt.getClaim("fullname").asString();
 			if(!fullname.contentEquals(claimFullname)) {
-				logger.warn("incoming fullname not equal with fullname in token");
+				logger.warn("incoming fullname not equal with fullname in token"); 
 				return false;
 			}
 			
 			Date expiration = jwt.getExpiresAt();
 			Date current = Calendar.getInstance().getTime();
 			if( current.after(expiration) ) {
-				logger.warn("incoming token is already expired");
+				logger.warn("incoming token is already expired"); 
 				return false;
 			} 
-		} catch ( Exception e) {
-			e.printStackTrace();
-			logger.warn("unable to decode incoming token");
+		} catch ( Exception e) { 
+			logger.debug("unable to decode incoming token"); 
 			return false;
 		}
 		
@@ -105,13 +103,12 @@ public class TokenService {
 	                .verify(token); 
 			
 			if(!jwt2.getSignature().contentEquals(jwt.getSignature())) {
-				logger.warn("incorrect signature");
+				logger.warn("incorrect signature"); 
 				return false;
 			}
 			
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.warn("unable to validate token signature");
+		} catch (Exception e) { 
+			logger.debug("unable to validate token signature"); 
 			return false;
 		}
 		
